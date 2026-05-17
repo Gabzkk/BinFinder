@@ -185,3 +185,7 @@ ALL_CLASSIFIERS.append(classify_my_vuln)
 ## License
 
 MIT — built for CTF players and security researchers.
+
+## Author
+
+SunBurnz
