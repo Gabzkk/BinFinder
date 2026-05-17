@@ -1,0 +1,3 @@
+flask>=3.0.0
+pyelftools>=0.31
+capstone>=5.0.0

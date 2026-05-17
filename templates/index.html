@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="BinIdentifier — Static binary vulnerability classifier. Upload ELF binaries to identify exploitation techniques, security mitigations, and difficulty ratings.">
+  <title>BinIdentifier — Binary Vulnerability Classifier</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <!-- ─── Animated Background ─── -->
+  <div class="bg-grid" aria-hidden="true"></div>
+  <div class="bg-glow bg-glow--1" aria-hidden="true"></div>
+  <div class="bg-glow bg-glow--2" aria-hidden="true"></div>
+
+  <!-- ─── Header ─── -->
+  <header class="header" id="header">
+    <div class="header__brand">
+      <div class="header__icon">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+          <rect x="2" y="6" width="28" height="20" rx="3" stroke="url(#hg)" stroke-width="2"/>
+          <path d="M8 14h4m-4 4h6m6-4h4m-6 4h6" stroke="url(#hg)" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="16" y1="10" x2="16" y2="22" stroke="url(#hg)" stroke-width="1" opacity=".4"/>
+          <defs><linearGradient id="hg" x1="0" y1="0" x2="32" y2="32"><stop stop-color="#a78bfa"/><stop offset="1" stop-color="#06b6d4"/></linearGradient></defs>
+        </svg>
+      </div>
+      <h1 class="header__title">Bin<span class="header__title--accent">Identifier</span></h1>
+    </div>
+    <p class="header__subtitle">Static Binary Vulnerability Classifier</p>
+  </header>
+
+  <!-- ─── Upload Zone ─── -->
+  <main class="main">
+    <section class="upload" id="upload-section">
+      <div class="upload__dropzone" id="dropzone" tabindex="0" role="button" aria-label="Upload binary file">
+        <div class="upload__icon">
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+            <path d="M24 4v28m0-28L14 14m10-10 10 10" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M6 30v8a4 4 0 0 0 4 4h28a4 4 0 0 0 4-4v-8" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <p class="upload__label">Drop your ELF binary here</p>
+        <p class="upload__sublabel">or <span class="upload__browse">browse files</span></p>
+        <input type="file" id="file-input" class="upload__input" accept="*/*">
+      </div>
+      <div class="upload__info" id="file-info" style="display:none;">
+        <span class="upload__filename" id="filename"></span>
+        <button class="upload__clear" id="clear-btn" aria-label="Clear file">✕</button>
+      </div>
+      <button class="btn btn--primary" id="analyze-btn" disabled>
+        <span class="btn__text">Analyze Binary</span>
+        <span class="btn__spinner" aria-hidden="true"></span>
+      </button>
+    </section>
+
+    <!-- ─── Results ─── -->
+    <section class="results" id="results" style="display:none;">
+      <!-- File summary -->
+      <div class="card card--summary" id="summary-card">
+        <h2 class="card__title">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 4h12v12H4z" stroke="currentColor" stroke-width="1.5" rx="2"/><path d="M7 8h6M7 12h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          Binary Summary
+        </h2>
+        <div class="summary-grid" id="summary-grid"></div>
+      </div>
+
+      <!-- Protections -->
+      <div class="card card--protections" id="prot-card">
+        <h2 class="card__title">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 2 3 5v5c0 4.4 3 8.5 7 10 4-1.5 7-5.6 7-10V5l-7-3Z" stroke="currentColor" stroke-width="1.5"/></svg>
+          Security Mitigations
+        </h2>
+        <div class="prot-grid" id="prot-grid"></div>
+      </div>
+
+      <!-- Vulnerabilities -->
+      <div class="card card--vulns" id="vulns-card">
+        <h2 class="card__title">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 2l8 16H2L10 2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M10 8v4m0 2v1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          Detected Vulnerabilities
+          <span class="badge badge--count" id="vuln-count">0</span>
+        </h2>
+        <div id="vulns-list"></div>
+      </div>
+
+      <!-- Strings / Imports -->
+      <div class="card card--details" id="details-card">
+        <h2 class="card__title">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/><path d="M10 6v4l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          Details
+        </h2>
+        <div class="tabs" id="detail-tabs">
+          <button class="tab tab--active" data-tab="imports">Imports</button>
+          <button class="tab" data-tab="exports">Exports</button>
+          <button class="tab" data-tab="sections">Sections</button>
+          <button class="tab" data-tab="strings">Strings</button>
+        </div>
+        <div class="tab-content" id="tab-content"></div>
+      </div>
+    </section>
+
+    <!-- Error -->
+    <div class="error-banner" id="error-banner" style="display:none;">
+      <span id="error-msg"></span>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>BinIdentifier v1.0 — Static analysis only. Always verify with dynamic testing.</p>
+  </footer>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
